@@ -65,6 +65,9 @@ export class PostgresDriver extends AbstractDriver {
             response
                 .filter(filterVal => filterVal.table_name === ent.tsEntityName)
                 .forEach(resp => {
+                    if (resp.data_type === "double precision") {
+                        resp.data_type = "float";
+                    }
                     const colInfo: ColumnInfo = new ColumnInfo();
                     colInfo.tsName = resp.column_name;
                     colInfo.options.name = resp.column_name;
@@ -589,10 +592,6 @@ export class PostgresDriver extends AbstractDriver {
     private ReturnDefaultValueFunction(defVal: string | null): string | null {
         if (!defVal) {
             return null;
-        }
-        defVal = defVal.replace(/'::[\w ]*/, "'");
-        if (defVal.startsWith(`'`)) {
-            return `() => "${defVal}"`;
         }
         return `() => "${defVal}"`;
     }
